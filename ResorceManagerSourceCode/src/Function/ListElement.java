@@ -1,17 +1,23 @@
 package Function;
-
+import org.eclipse.swt.widgets.*;
 /**
  * Created by Dmitriy on 14.11.2015.
  */
 public class ListElement {
+    public  boolean state;
     String description;
     int number;
     int value;
+
+    Composite block;
+    Text desc;
+
 
     public ListElement(int pval,int pnum, String pdes)
     {number= pnum;
      value=pval;
      description=pdes;
+     state = true;
     }
 
     public int getvalue()
@@ -36,4 +42,9 @@ public class ListElement {
     public void setdescription(String pdes)
     {description=pdes;
     }
+
+    public void visualize(Composite base,int line){
+
+    }
+
 }
