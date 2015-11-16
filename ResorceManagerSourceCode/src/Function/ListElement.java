@@ -8,6 +8,7 @@ import org.eclipse.swt.graphics.*;
 public class ListElement {
     public  boolean isExist;
     public  boolean isVisual;
+    public ProjectImage obj;
     String description;
     int index;
     int value;
@@ -39,7 +40,7 @@ public class ListElement {
     }
     public void setindex(int pnum)
     {index =pnum;
-     if(isVisual)InpVal.setText(Integer.toString(index));
+     if(isVisual)Info[0].setText(Integer.toString(index));
     }
 
     public String getdescription()
@@ -51,7 +52,7 @@ public class ListElement {
      if(isVisual)Desc.setText(description);
     }
 
-    public void visualize(Composite base,int line,ProjectImage obj,Display display)
+    public void visualize(Composite base,int line,Display display)
     {Block = new Composite(base, SWT.BORDER);
      Block.setBounds(5, line, 470, 105);
 
@@ -63,6 +64,7 @@ public class ListElement {
      InpVal.setFont(new Font(display, "TIMES NEW ROMAN", 16, SWT.BOLD));
      Desc.setTextLimit(100);
      InpVal.setTextLimit(9);
+     Desc.setText(description);
      InpVal.setText("0");
 
      Info = new Label [3];
@@ -77,23 +79,24 @@ public class ListElement {
      Info[2].setBounds(405, 25, 50, 50);
      Info[2].setImage(new Image(display, "../Resource Manager/Images/Delete_3.png"));
 
-     Listener DeleteL = new Listener()
-     {
-         @Override
-         public void handleEvent(Event event) {
-             if(event.type==SWT.MouseDown)
-             {freeres();
-              obj.UpdateData();
-             }
-         }
-     };
+
+     InpVal.addListener(SWT.FOCUSED, new Listener() {
+        @Override
+        public void handleEvent(Event event) {
+        if((InpVal.getCharCount()==1)&&(InpVal.getTextChars()[0]=='0'))
+            InpVal.selectAll();
+
+      }
+    });
+
 
     Info[2].addListener(SWT.MouseDown, new Listener() {
         @Override
         public void handleEvent(Event event) {
             if (event.type == SWT.MouseDown) {
                 freeres();
-                obj.UpdateData();
+                obj.DeleteElement(index);
+                isVisual=false;
             }
         }
     });
@@ -107,7 +110,7 @@ public class ListElement {
             int i = 0;
             String actual = "";
 
-            if (((e.character > '9') || (e.character < '0')) && (e.keyCode != 16777220) && (e.keyCode != 16777219)) {
+            if (((e.character > '9') || (e.character < '0')) && (e.keyCode != 16777220) && (e.keyCode != 16777219)&&(e.keyCode!=8)&&(e.keyCode!=127)) {
                 flg = InpVal.getCharCount();
                 veryfy = InpVal.getTextChars();
                 for (i = 0; i < flg; i++)
@@ -128,6 +131,7 @@ public class ListElement {
                 if (i == flg && zeroflg == 1) value = Integer.decode(actual);
                 else value = 0;
             }
+            obj.UpdateData(false,0);
         }
     });
 
@@ -135,6 +139,7 @@ public class ListElement {
         @Override
         public void handleEvent(Event e) {
             if (InpVal.getCharCount() == 0) InpVal.setText(Integer.toString(value));
+        obj.UpdateData(false,0);
         }
     });
 
@@ -144,7 +149,7 @@ public class ListElement {
             if (Desc.getCharCount() != 0) description=Desc.getText();
         }
     });
-        
+
 
     isVisual=true;
     }

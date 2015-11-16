@@ -22,7 +22,7 @@ public class Interface {
     ProjectImage PI;
 
     public Interface()
-    {PI = new ProjectImage();
+    {
      Label MenuL [] = new Label [10];
 
      Display display = new Display();
@@ -82,6 +82,8 @@ public class Interface {
      ListLE.setContent(ListLEContent);
 
 
+
+
      Text StateT1 = new Text(State,SWT.BORDER|SWT.CENTER);
      Text StateT2 = new Text(State,SWT.BORDER);
      for(int i=0;i<2;i++)
@@ -102,10 +104,12 @@ public class Interface {
      StateL[2].setText("0");
      StateT1.setText("<Resource name>");
      StateT1.setTextLimit(30);
-     StateT2.setText("<Number>");
+     StateT2.setText("0");
      StateT2.setTextLimit(9);
      StateT1.setBackground(State.getBackground());
      StateT2.setBackground(State.getBackground());
+
+     PI = new ProjectImage(display,ListLEContent,StateL[2]);
 
      Listener LSfocin = new Listener() {
          @Override
@@ -125,22 +129,23 @@ public class Interface {
     };
 
      Listener LSfocout = new Listener() {
-        @Override
-        public void handleEvent(Event e)
-        {if(StateT2.getCharCount()==0)StateT2.setText(Integer.toString(PI.Overall));
-        }
-    };
+            @Override
+            public void handleEvent(Event e)
+            {if(StateT2.getCharCount()==0)StateT2.setText(Integer.toString(PI.Overall));
+             PI.UpdateData(false, 0);
+            }
+        };
 
 
-     Listener LStypeChar2 = new Listener() {
-        @Override
-        public void handleEvent(Event e)
-        {char[] veryfy;
-          int flg=0;
-          int i=0;
-          String actual = "";
+         Listener LStypeChar2 = new Listener() {
+             @Override
+             public void handleEvent(Event e)
+             {char[] veryfy;
+                 int flg=0;
+                 int i=0;
+                 String actual = "";
 
-          if (((e.character >'9')||(e.character<'0'))&&(e.keyCode!=16777220)&&(e.keyCode!=16777219))
+          if (((e.character >'9')||(e.character<'0'))&&(e.keyCode!=16777220)&&(e.keyCode!=16777219)&&(e.keyCode!=8)&&(e.keyCode!=127))
           {flg=StateT2.getCharCount();
            veryfy = StateT2.getTextChars();
            for(i=0;i<flg;i++)
@@ -161,10 +166,51 @@ public class Interface {
              if(i==flg && zeroflg==1)PI.Overall=Integer.decode(actual);
              else PI.Overall=0;
             }
+        PI.UpdateData(false,0);
+        }
+    };
+
+    Listener NewListener = new Listener() {
+        @Override
+        public void handleEvent(Event e)
+        {PI.freeRes();
+         PI = new ProjectImage(display,ListLEContent,StateL[2]);
+         StateT2.setText("0");
+         StateL[2].setText("0");
+         ListLEContent.setSize(485, 335);
+         StateT1.setText("<Resource name>");
+        }
+    };
+
+    Listener AddListener = new Listener() {
+        @Override
+        public void handleEvent(Event e)
+        {PI.AddElement(PI);
+        }
+    };
+
+    Listener ExitListener = new Listener() {
+        @Override
+        public void handleEvent(Event e)
+        {Menu.dispose();
+         for(int i=0;i<10;i++)
+         MenuL[i].dispose();
+         State.dispose();
+         ListLE.dispose();
+         ListLEContent.dispose();
+         StateT1.dispose();
+         StateT2.dispose();
+         for(int i=0;i<3;i++)
+         StateL[i].dispose();
+
+         shell.close();
         }
     };
 
 
+     MenuL[0].addListener(SWT.MouseDown,NewListener);
+     MenuL[1].addListener(SWT.MouseDown,AddListener);
+     MenuL[4].addListener(SWT.MouseDown,ExitListener);
 
      StateT1.addListener(SWT.FOCUSED, LSfocin);
      StateT1.addListener(SWT.KeyUp, LStypeChar1);
@@ -181,6 +227,8 @@ public class Interface {
      {if (!display.readAndDispatch())
          display.sleep();
      }
+
+
     }
 
     public void NewScale()
@@ -199,10 +247,6 @@ public class Interface {
     }
 
 
-    public void GetListArea()
-    {
-
-    }
 
     public static void main(String[] args)
     {Interface graph = new Interface();
