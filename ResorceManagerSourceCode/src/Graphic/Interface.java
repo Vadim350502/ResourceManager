@@ -23,11 +23,14 @@ public class Interface {
 
     public Interface()
     {PI = new ProjectImage();
+     Label MenuL [] = new Label [10];
 
      Display display = new Display();
      shell = new Shell(display, SWT.MENU|SWT.BORDER);
      shell.setBackground(display.getSystemColor(SWT.COLOR_DARK_GRAY));
      shell.setSize(500, 600);
+     shell.setText("Resource Manager");
+     shell.setImage(new Image(display, "../Resource Manager/Images/Box_1.png"));
      Rectangle bds = display.getBounds();
      Point p = shell.getSize();
      int nLeft = (bds.width - p.x) / 2;
@@ -35,16 +38,47 @@ public class Interface {
      shell.setBounds(nLeft, nTop, p.x, p.y);
 
      Composite Menu = new Composite(shell,SWT.NONE);
-     Menu.setBounds(5,10,485,50);
+     Menu.setBounds(5, 10, 485, 90);
+
+     for(int i=0;i<5;i++)
+     {MenuL[i] = new Label(Menu, SWT.ON_TOP);
+     }
+
+     MenuL[0].setBounds(25, 5, 50, 50);
+     MenuL[1].setBounds(120, 5, 50, 50);
+     MenuL[2].setBounds(215, 5, 50, 50);
+     MenuL[3].setBounds(310, 5, 50, 50);
+     MenuL[4].setBounds(405, 5, 50, 50);
+
+     MenuL[0].setImage(new Image(display, "../Resource Manager/Images/New_1.png"));
+     MenuL[1].setImage(new Image(display, "../Resource Manager/Images/Add_1.png"));
+     MenuL[2].setImage(new Image(display, "../Resource Manager/Images/Save_1.png"));
+     MenuL[3].setImage(new Image(display, "../Resource Manager/Images/Open_1.png"));
+     MenuL[4].setImage(new Image(display, "../Resource Manager/Images/Exit_1.png"));
+
+     for(int i=5;i<10;i++)
+     {MenuL[i] = new Label(Menu, SWT.CENTER);
+      MenuL[i].setFont(new Font(display, "CALIBRI", 12, SWT.BOLD));
+     }
+     MenuL[5].setBounds(10, 60, 80, 25);
+     MenuL[6].setBounds(105, 60, 80, 25);
+     MenuL[7].setBounds(200, 60, 80, 25);
+     MenuL[8].setBounds(295, 60, 80, 25);
+     MenuL[9].setBounds(390, 60, 80, 25);
+     MenuL[5].setText("New scale");
+     MenuL[6].setText("Add form");
+     MenuL[7].setText("Save scale");
+     MenuL[8].setText("Load scale");
+     MenuL[9].setText("Exit");
 
      State = new Composite(shell,SWT.NONE);
-     State.setBounds(5,80,485,100);
+     State.setBounds(5, 115, 485, 90);
 
      ListLE = new ScrolledComposite(shell,SWT.BORDER|SWT.V_SCROLL);
-     ListLE.setBounds(5, 200, 485, 350);
-     ListLE.setMinHeight(350);
+     ListLE.setBounds(5, 220, 485, 340);
+     ListLE.setMinHeight(340);
      ListLEContent = new Composite(ListLE,SWT.NONE);
-     ListLEContent.setSize(485, 345);
+     ListLEContent.setSize(485, 335);
      ListLE.setContent(ListLEContent);
 
 
@@ -87,9 +121,9 @@ public class Interface {
         @Override
         public void handleEvent(Event e)
         {PI.ResourceName=StateT1.getText();
-            System.out.println(PI.ResourceName);
         }
     };
+
      Listener LSfocout = new Listener() {
         @Override
         public void handleEvent(Event e)
@@ -124,7 +158,7 @@ public class Interface {
                 {if(zeroflg==0 && veryfy[i]!='0') zeroflg=1;
                  if(zeroflg==1) actual+=Character.toString(veryfy[i]);
                 }
-             if(i==flg && zeroflg==1){System.out.println(actual);PI.Overall=Integer.decode(actual);}
+             if(i==flg && zeroflg==1)PI.Overall=Integer.decode(actual);
              else PI.Overall=0;
             }
         }
@@ -136,7 +170,7 @@ public class Interface {
      StateT1.addListener(SWT.KeyUp, LStypeChar1);
      StateT2.addListener(SWT.KeyUp,LStypeChar2);
      StateT2.addListener(SWT.FOCUSED, LSfocin);
-     StateT2.addListener(SWT.FOCUSED, LSfocout);
+     StateT2.addListener(SWT.FocusOut, LSfocout);
 
 
 
