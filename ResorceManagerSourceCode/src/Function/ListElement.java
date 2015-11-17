@@ -40,7 +40,7 @@ public class ListElement {
     }
     public void setindex(int pnum)
     {index =pnum;
-     if(isVisual)Info[0].setText(Integer.toString(index));
+     if(isVisual)Info[0].setText(Integer.toString(index+1));
     }
 
     public String getdescription()
@@ -65,14 +65,14 @@ public class ListElement {
      Desc.setTextLimit(100);
      InpVal.setTextLimit(9);
      Desc.setText(description);
-     InpVal.setText("0");
+     InpVal.setText(Integer.toString(value));
 
      Info = new Label [3];
      for(int z=0;z<3;z+=1)
         Info[z]= new Label(Block,SWT.NONE);
      Info[0].setBounds(10, 30, 50, 50);
      Info[0].setFont(new Font(display, "TIMES NEW ROMAN", 20, SWT.BOLD));
-     Info[0].setText(Integer.toString(index));
+     Info[0].setText(Integer.toString(index+1));
      Info[1].setBounds(280, 5, 115, 40);
      Info[1].setFont(new Font(display, "TIMES NEW ROMAN", 20, SWT.BOLD));
      Info[1].setText("Using:");

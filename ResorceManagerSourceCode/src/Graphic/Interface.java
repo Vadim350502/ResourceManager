@@ -1,13 +1,13 @@
 package Graphic;
 
-import Function.ListElement;
 import Function.ProjectImage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.widgets.*;
 
-import java.awt.event.FocusListener;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by Dmitriy on 14.11.2015.
@@ -20,12 +20,14 @@ public class Interface {
     ScrolledComposite ListLE;
     Label StateL [] = new Label[3];
     ProjectImage PI;
+    Text StateT1;
+    Text StateT2;
 
     public Interface()
     {
      Label MenuL [] = new Label [10];
 
-     Display display = new Display();
+     display = new Display();
      shell = new Shell(display, SWT.MENU|SWT.BORDER);
      shell.setBackground(display.getSystemColor(SWT.COLOR_DARK_GRAY));
      shell.setSize(500, 600);
@@ -79,13 +81,12 @@ public class Interface {
      ListLE.setMinHeight(340);
      ListLEContent = new Composite(ListLE,SWT.NONE);
      ListLEContent.setSize(485, 335);
+     ListLEContent.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
      ListLE.setContent(ListLEContent);
 
 
-
-
-     Text StateT1 = new Text(State,SWT.BORDER|SWT.CENTER);
-     Text StateT2 = new Text(State,SWT.BORDER);
+     StateT1 = new Text(State,SWT.BORDER|SWT.CENTER);
+     StateT2 = new Text(State,SWT.BORDER);
      for(int i=0;i<2;i++)
      {StateL[i] = new Label(State, SWT.NONE);
       StateL[i].setFont(new Font(display, "TIMES NEW ROMAN", 16, SWT.BOLD));
@@ -115,8 +116,8 @@ public class Interface {
          @Override
          public void handleEvent(Event e)
          { if (e.type == SWT.FOCUSED)
-              {if(StateT2.isFocusControl())StateT2.selectAll();
-               if(StateT1.isFocusControl())StateT1.selectAll();
+              {if(StateT2.isFocusControl()) StateT2.selectAll();
+               if(StateT1.isFocusControl()) StateT1.selectAll();
               }
          }
         };
@@ -189,6 +190,31 @@ public class Interface {
         }
     };
 
+    Listener SaveListener = new Listener() {
+        @Override
+        public void handleEvent(Event e)
+        {
+            try {
+                SaveScale();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
+        }
+    };
+
+    Listener LoadListener = new Listener() {
+        @Override
+        public void handleEvent(Event e)
+        {
+            try {
+                LoadScale();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+    };
+
     Listener ExitListener = new Listener() {
         @Override
         public void handleEvent(Event e)
@@ -210,6 +236,8 @@ public class Interface {
 
      MenuL[0].addListener(SWT.MouseDown,NewListener);
      MenuL[1].addListener(SWT.MouseDown,AddListener);
+     MenuL[2].addListener(SWT.MouseDown,SaveListener);
+     MenuL[3].addListener(SWT.MouseDown,LoadListener);
      MenuL[4].addListener(SWT.MouseDown,ExitListener);
 
      StateT1.addListener(SWT.FOCUSED, LSfocin);
@@ -230,23 +258,379 @@ public class Interface {
 
 
     }
+    public void MessageWindow(String message,Shell Disable)
+    {Shell messagew = new Shell(display, SWT.MENU|SWT.BORDER);
+     messagew.setSize(300, 150);
+     Rectangle bds = display.getBounds();
+     Point p = messagew.getSize();
+     int nLeft = (bds.width - p.x) / 2;
+     int nTop = (bds.height - p.y) / 2;
+     messagew.setBounds(nLeft, nTop, p.x, p.y);
+     messagew.setText("Error");
+     messagew.setImage(new Image(display, "../Resource Manager/Images/Box_1.png"));
 
-    public void NewScale()
-    {
+
+     Label lbmsg = new Label(messagew,SWT.CENTER);
+     lbmsg.setText(message);
+     lbmsg.setBounds(15, 20, 260, 30);
+     lbmsg.setFont(new Font(display, "TIMES NEW ROMAN", 14, SWT.BOLD));
+
+     Button btnok = new Button(messagew,SWT.PUSH);
+     btnok.setText("OK");
+     btnok.setBounds(70, 70, 150, 40);
+
+     Listener ListenerOk = new Listener()
+        {
+            public void handleEvent(Event e){
+                if (e.type == SWT.MouseDown)
+                {messagew.dispose();
+                }
+            }};
+
+     btnok.addListener(SWT.MouseDown, ListenerOk);
+
+     messagew.open();
+     Disable.setEnabled(false);
+     while(!messagew.isDisposed())
+        {if (!display.readAndDispatch())
+            display.sleep();
+        }
+
+     Disable.setEnabled(true);
+    }
+
+    public boolean QuestionWindow(String question,Shell Disable)
+    {Shell QW = new Shell(display, SWT.MENU|SWT.BORDER);
+        QW.setSize(300, 150);
+        Rectangle bds = display.getBounds();
+        Point p = QW.getSize();
+        int nLeft = (bds.width - p.x) / 2;
+        int nTop = (bds.height - p.y) / 2;
+        QW.setBounds(nLeft, nTop, p.x, p.y);
+        QW.setText("Error");
+        QW.setImage(new Image(display, "../Resource Manager/Images/Box_1.png"));
+
+        boolean state[]= new boolean[1];
+
+        Label lbmsg = new Label(QW,SWT.CENTER);
+        lbmsg.setText(question);
+        lbmsg.setBounds(15, 20, 260, 30);
+        lbmsg.setFont(new Font(display, "TIMES NEW ROMAN", 14, SWT.BOLD));
+
+        Button BtnNo = new Button(QW,SWT.PUSH);
+        BtnNo.setText("No");
+        BtnNo.setBounds(165, 70, 120, 40);
+
+        Button BtnYes = new Button(QW,SWT.PUSH);
+        BtnYes.setText("Yes");
+        BtnYes.setBounds(10, 70, 120, 40);
+
+        Listener ListenerYes = new Listener()
+        {
+            public void handleEvent(Event e){
+                if (e.type == SWT.MouseDown)
+                {state[0]=true;
+                 QW.close();
+                }
+            }};
+
+        Listener ListenerNo = new Listener()
+        {
+            public void handleEvent(Event e){
+                if (e.type == SWT.MouseDown)
+                {state[0]=false;
+                 QW.close();
+                }
+            }};
+
+        BtnYes.addListener(SWT.MouseDown, ListenerYes);
+        BtnNo.addListener(SWT.MouseDown, ListenerNo);
+
+        QW.open();
+
+        Disable.setEnabled(false);
+
+        while(!QW.isDisposed())
+        {if (!display.readAndDispatch())
+            display.sleep();
+        }
+
+        Disable.setEnabled(true);
+        return(state[0]);
+    }
+
+
+    public void SaveScale() throws IOException {
+     Shell Savewindow = new Shell(display, SWT.MENU|SWT.BORDER);
+     Savewindow.setSize(500, 600);
+     Savewindow.setLocation(shell.getLocation());
+     Savewindow.setText("Save file");
+     Savewindow.setImage(new Image(display, "../Resource Manager/Images/Box_1.png"));
+
+     String[]files;
+     int j,val[];
+     boolean state []= new boolean[3];
+
+     val=new int[1];
+     state[2]=false;
+
+     List FileList = new List(Savewindow,SWT.BORDER|SWT.MULTI|SWT.V_SCROLL);
+     FileList.setBounds(10, 10, 475, 440);
+     FileList.setFont(new Font(display, "TIMES NEW ROMAN", 16, SWT.BOLD));
+
+     File DataFolder = new File("../Resource Manager/RMCache/");
+     files=DataFolder.list();
+     for(j=0;j<files.length;j++)
+     FileList.add(files[j].substring(0,files[j].length()-4));
+     val[0]=files.length;
+
+
+     Text Namefield = new Text(Savewindow,SWT.BORDER);
+     Namefield.setFont(new Font(display, "TIMES NEW ROMAN", 16, SWT.BOLD));
+     Namefield.setBounds(10, 465, 475, 35);
+     Namefield.setText("NewFile");
+     Namefield.setTextLimit(50);
+
+     Button BtnSave = new Button(Savewindow,SWT.PUSH);
+     BtnSave.setText("Save");
+     BtnSave.setBounds(175, 515, 145, 40);
+
+     Button BtnCancel = new Button(Savewindow,SWT.PUSH);
+     BtnCancel.setText("Cancel");
+     BtnCancel.setBounds(340, 515, 145, 40);
+
+     Button BtnDelete = new Button(Savewindow,SWT.PUSH);
+     BtnDelete.setText("Delete");
+     BtnDelete.setBounds(10, 515, 145, 40);
+
+     if(FileList.getItemCount() != 0) FileList.select(0);
+
+     Listener ListSelect = new Listener() {
+         @Override
+         public void handleEvent(Event event) {
+             if(FileList.getItemCount() != 0)
+                 Namefield.setText(FileList.getItem(FileList.getSelectionIndex()));
+         }
+     };
+
+     Listener FieldFocus = new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+             Namefield.selectAll();
+            }
+     };
+
+
+     Listener Cancel = new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+             Savewindow.close();
+            }
+     };
+
+     Listener Save = new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+            state[1]=false;
+            state[0]=false;
+            if(Namefield.getText().length()<1) MessageWindow("Enter file name!!!",Savewindow);
+            else{
+            for(int i=0;i<val[0]&&!state[1];i++)
+                if(FileList.getItem(i).compareTo(Namefield.getText())==0) state[1]=true;
+                if(state[1])
+                   if(QuestionWindow("Overwrite this file?", Savewindow)){
+                       try {
+                           state[0]=PI.SaveData(Namefield.getText(), true);
+                       } catch (IOException e) {
+                           e.printStackTrace();
+                       }
+                   }
+                   else state[0]=true;
+                if(!state[1]) {
+                       try {
+                           state[0]=PI.SaveData(Namefield.getText(), false);
+                       } catch (IOException e) {
+                           e.printStackTrace();
+                       }
+                   }
+            if(!state[0])MessageWindow("Failed to save!",Savewindow);
+            state[2]=true;
+            }
+            }
+     };
+
+     Listener Delete = new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                if (FileList.getItemCount() != 0) {
+                    state[0] = QuestionWindow("Delete this file?", Savewindow);
+                    if (state[0]) {
+                        File del = new File("../Resource Manager/RMCache/" + FileList.getItem(FileList.getSelectionIndex()) + ".rmc");
+                        del.delete();
+                        state[2] = true;
+                    }
+                }
+            }
+     };
+
+
+     FileList.addListener(SWT.MouseDown,ListSelect);
+     Namefield.addListener(SWT.MouseDown,FieldFocus);
+     BtnCancel.addListener(SWT.MouseDown,Cancel);
+     BtnSave.addListener(SWT.MouseDown,Save);
+     BtnDelete.addListener(SWT.MouseDown, Delete);
+
+
+     shell.setEnabled(false);
+     Savewindow.open();
+
+     while(!Savewindow.isDisposed())
+        {if (!display.readAndDispatch())
+            display.sleep();
+         if(state[2])
+          {files=DataFolder.list();
+           FileList.removeAll();
+           for(j=0;j<files.length;j++)
+           FileList.add(files[j].substring(0,files[j].length()-4));
+           val[0]=files.length;
+           state[2]=false;
+           if(FileList.getItemCount()==0) Namefield.setText("New File");
+           if(FileList.getItemCount() != 0) FileList.select(0);
+          }
+        }
+     shell.setEnabled(true);
 
     }
 
-    public void SaveScale()
-    {
+    public void LoadScale() throws IOException {
+        Shell Loadwindow = new Shell(display, SWT.MENU|SWT.BORDER);
+        Loadwindow.setSize(500, 600);
+        Loadwindow.setLocation(shell.getLocation());
+        Loadwindow.setText("Save file");
+        Loadwindow.setImage(new Image(display, "../Resource Manager/Images/Box_1.png"));
+
+
+        String[]files;
+        int j,val[];
+        boolean state []= new boolean[3];
+
+        val=new int[1];
+        state[2]=false;
+
+        List FileList = new List(Loadwindow,SWT.BORDER|SWT.MULTI|SWT.V_SCROLL);
+        FileList.setBounds(10, 10, 475, 440);
+        FileList.setFont(new Font(display, "TIMES NEW ROMAN", 16, SWT.BOLD));
+
+        File DataFolder = new File("../Resource Manager/RMCache/");
+        files=DataFolder.list();
+        for(j=0;j<files.length;j++)
+        FileList.add(files[j].substring(0,files[j].length()-4));
+        val[0]=files.length;
+
+
+
+        Label Namefield = new Label(Loadwindow, SWT.BORDER);
+        Namefield.setFont(new Font(display, "TIMES NEW ROMAN", 16, SWT.BOLD));
+        Namefield.setBounds(10, 465, 475, 35);
+        if(FileList.getItemCount() != 0)
+           {FileList.select(0);
+            Namefield.setText(FileList.getItem(0));
+           }
+        else Namefield.setText("No saved files");
+
+        Button BtnLoad = new Button(Loadwindow,SWT.PUSH);
+        BtnLoad.setText("Load");
+        BtnLoad.setBounds(175, 515, 145, 40);
+
+        Button BtnCancel = new Button(Loadwindow,SWT.PUSH);
+        BtnCancel.setText("Cancel");
+        BtnCancel.setBounds(340, 515, 145, 40);
+
+        Button BtnDelete = new Button(Loadwindow,SWT.PUSH);
+        BtnDelete.setText("Delete");
+        BtnDelete.setBounds(10, 515, 145, 40);
+
+
+        Listener ListSelect = new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                if(FileList.getItemCount() != 0)
+                Namefield.setText(FileList.getItem(FileList.getSelectionIndex()));
+                else Namefield.setText("No saved files");
+            }
+        };
+
+
+        Listener Cancel = new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                Loadwindow.close();
+            }
+        };
+
+        Listener Delete = new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                if (FileList.getItemCount() != 0) {
+                    state[0] = QuestionWindow("Delete this file?", Loadwindow);
+                    if (state[0]) {
+                        File del = new File("../Resource Manager/RMCache/" + FileList.getItem(FileList.getSelectionIndex()) + ".rmc");
+                        del.delete();
+                        state[2] = true;
+                    }
+                }
+            }
+        };
+
+        Listener Load = new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                if (FileList.getItemCount() != 0)
+                {state[0]=QuestionWindow("Close current project?",Loadwindow);
+                 if(state[0])
+                     try {
+                         if(PI.LoadData(FileList.getItem(FileList.getSelectionIndex()),PI))
+                          {StateT2.setText(Integer.toString(PI.Overall));
+                           StateT1.setText(PI.ResourceName);
+                           Loadwindow.close();
+                           }
+                         else MessageWindow("File have damage!",Loadwindow);
+
+                     } catch (IOException e) {
+                         e.printStackTrace();
+                     }
+                }
+            }
+        };
+
+
+//
+        FileList.addListener(SWT.MouseDown,ListSelect);
+        BtnCancel.addListener(SWT.MouseDown,Cancel);
+        BtnLoad.addListener(SWT.MouseDown,Load);
+        BtnDelete.addListener(SWT.MouseDown, Delete);
+
+
+        shell.setEnabled(false);
+        Loadwindow.open();
+
+        while(!Loadwindow.isDisposed())
+        {if (!display.readAndDispatch())
+            display.sleep();
+            if(state[2])
+            {files=DataFolder.list();
+                FileList.removeAll();
+                for(j=0;j<files.length;j++)
+                    FileList.add(files[j].substring(0,files[j].length()-4));
+                val[0]=files.length;
+                state[2]=false;
+                if(FileList.getItemCount()==0) Namefield.setText("New File");
+                if(FileList.getItemCount() != 0) FileList.select(0);
+            }
+        }
+        shell.setEnabled(true);
 
     }
-
-    public void LoadScale()
-    {
-
-    }
-
-
 
     public static void main(String[] args)
     {Interface graph = new Interface();
